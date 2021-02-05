@@ -1,0 +1,139 @@
+<html>
+	<head>
+		<title>Capture picture from your webcam</title>
+		<script type="text/javascript" src="webcam.min.js"></script>
+		
+		
+	</head>
+
+	<body>
+		<div id="camera" style="height:auto;width:auto; text-align:left;"></div>
+
+		<!--FOR THE SNAPSHOT-->
+		<input type="button" value="Take a Snap" id="btPic" onclick="takeSnapShot()" /> 
+		<p id="snapShot"></p>
+		
+	</body>	
+	
+	<script>
+		
+		function SendDataToServer(strData) {
+			if (strData.length==0) {
+				return;
+			}
+			var xmlhttp=new XMLHttpRequest();
+			if(xmlhttp){
+				// alert("The Setup Sheet **" + strData + "** has been downloaded!");
+				xmlhttp.open("POST","http://eleanaims.ddns.net:1024/api/getImage?image=aa",true);
+			
+				xmlhttp.send();
+			}
+		}
+		
+		function SendAPIRequest(url, file) {
+			fetch(url, {
+				method: "POST", 
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					data: file,
+					// Additional fields  here...
+				})
+			})
+			.then(function(res) {
+				console.log("Success!", res);
+			})
+			.catch(function(err) {
+				console.log("Error!", err);
+			});
+		}
+
+	</script>
+
+
+	<script>
+		
+
+
+		// CAMERA SETTINGS.
+		Webcam.set({
+			width: 640,
+			height: 490,
+			image_format: 'jpeg',
+			jpeg_quality: 600
+		});
+		Webcam.attach('#camera');
+
+		// SHOW THE SNAPSHOT.
+		takeSnapShot = function () {
+			Webcam.snap(function (data_uri) {
+				document.getElementById('snapShot').innerHTML = 
+					'<img src="' + data_uri + '" width="320px" height="240px" id="avatar"/>';
+				
+				downloadImage('arun', data_uri);
+				
+				
+				// // Split the base64 string in data and contentType
+				var block = data_uri.split(";");
+				// // Get the content type of the image
+				var contentType = block[0].split(":")[1];// In this case "image/gif"
+				// // get the real base64 content of the file
+				var realData = block[1].split(",")[1];// In this case "R0lGODlhPQBEAPeoAJosM...."
+				// SendDataToServer(data_uri);
+				
+				
+				/*
+				// post body data 
+				const user = {
+					first_name: 'John',
+					last_name: 'Doe',
+					job_title: 'Blogger'
+				};
+
+				// request options
+				const options = {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(user)
+				}
+					  
+				fetch(url,options)
+					// Handle success
+					.then(response => response.json())  // convert to json
+					.catch(err => console.log('Request Failed', err)); // Catch errors
+				*/
+			});
+		}
+		
+		// DOWNLOAD THE IMAGE.
+		downloadImage = function (name, datauri) {
+			var a = document.createElement('a');
+			// name = location.hostname;
+			a.setAttribute('download', name + '.png');
+			a.setAttribute('href', datauri);
+			a.click();
+			
+			// post body data 
+			const user = {
+				first_name: 'John',
+				last_name: 'Doe',
+				job_title: 'Blogger'
+			};
+
+			// request options
+			const options = {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(user)
+			}
+			
+			const url = 'http://eleanaims.ddns.net:1024/api/getImage';
+			SendAPIRequest(url, datauri);
+		}
+		
+		
+	</script>
+</html>
